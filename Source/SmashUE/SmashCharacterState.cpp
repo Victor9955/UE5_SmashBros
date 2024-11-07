@@ -28,6 +28,14 @@ void USmashCharacterState::StateInit(USmashCharacterStateMachine* InStateMachine
 	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Magenta,FString::Printf(TEXT("Init State %d") ,GetStateID()));
 }
 
+void USmashCharacterState::StateEnter(ESmashCharacterStateID PreviousStateID)
+{
+}
+
+void USmashCharacterState::StateExit(ESmashCharacterStateID NextStateID)
+{
+}
+
 
 
 
