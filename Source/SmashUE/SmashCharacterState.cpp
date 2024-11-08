@@ -4,6 +4,7 @@
 #include "SmashCharacterState.h"
 
 #include "SmashCharacterStateMachine.h"
+#include "Characters/SmashCharacter.h"
 
 
 // Sets default values for this component's properties
@@ -33,6 +34,10 @@ void USmashCharacterState::StateEnter(ESmashCharacterStateID PreviousStateID)
 }
 
 void USmashCharacterState::StateExit(ESmashCharacterStateID NextStateID)
+{
+}
+
+void USmashCharacterState::StateTick(float DeltaTime)
 {
 }
 

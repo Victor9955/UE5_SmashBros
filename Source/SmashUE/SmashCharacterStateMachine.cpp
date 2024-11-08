@@ -9,9 +9,15 @@
 void USmashCharacterStateMachine::Init(ASmashCharacter* InCharacter)
 {
 	Character = InCharacter;
-	FindStates();
+	FindStates();	
 	InitStates();
 	ChangeState(ESmashCharacterStateID::Idle);
+}
+
+void USmashCharacterStateMachine::Tick(float DeltaTime)
+{
+	if(CurrentState == nullptr) return;
+	CurrentState->StateTick(DeltaTime);
 }
 
 ASmashCharacter* USmashCharacterStateMachine::GetCharacter() const

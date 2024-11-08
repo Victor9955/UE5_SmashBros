@@ -36,6 +36,7 @@ public:
 		float GetOrientX() const;
 
 		void SetOrientX(float NewOrientX);
+	
 
 	protected:
 		UPROPERTY(BlueprintReadOnly)
@@ -48,6 +49,9 @@ public:
 	public:
 	void CreateStateMachine();
 	void InitStateMachine();
+	void TickStateMachine(float DeltaTime);
+	UPROPERTY(BlueprintReadWrite)
+	UAnimMontage* Anim;
 	protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<USmashCharacterStateMachine> StateMachine;
