@@ -4,6 +4,7 @@
 #include "SmashCharacterStateMachine.h"
 
 #include "SmashCharacterState.h"
+#include "SmashCharacterStateID.h"
 #include "Characters/SmashCharacter.h"
 
 void USmashCharacterStateMachine::Init(ASmashCharacter* InCharacter)

@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,8 +6,10 @@
 #include "Components/ActorComponent.h"
 #include "SmashCharacterState.generated.h"
 
+
 class ASmashCharacter;
 class USmashCharacterStateMachine;
+
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))

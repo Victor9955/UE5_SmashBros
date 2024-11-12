@@ -9,6 +9,7 @@
 enum class ESmashCharacterState : uint8;
 class ASmashCharacter;
 class USmashCharacterState;
+class USmashCharacterStateID;
 
 /**
  * 

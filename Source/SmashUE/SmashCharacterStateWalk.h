@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SmashCharacterState.h"
+#include "SmashCharacterStateID.h"
 #include "SmashCharacterStateWalk.generated.h"
 
 

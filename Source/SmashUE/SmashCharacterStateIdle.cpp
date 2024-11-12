@@ -3,6 +3,7 @@
 
 #include "SmashCharacterStateIdle.h"
 
+#include "SmashCharacterStateID.h"
 #include "Characters/SmashCharacter.h"
 
 ESmashCharacterStateID USmashCharacterStateIdle::GetStateID()
