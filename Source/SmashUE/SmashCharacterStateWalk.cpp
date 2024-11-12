@@ -31,9 +31,18 @@ void USmashCharacterStateWalk::StateExit(ESmashCharacterStateID PreviousStateID)
 void USmashCharacterStateWalk::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
-	Character->AddMovementInput(Character->GetActorForwardVector() * Character->GetOrientX(),  10,false);
-	
+
 	GEngine->AddOnScreenDebugMessage(-1,0.1f,FColor::Green, TEXT("Tick StateWalk"));
+
+	if(FMath::Abs(Character->GetInputMoveX()) < 0.1f)
+	{
+		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
+	}
+	else
+	{
+		Character->SetOrientX(Character->GetInputMoveX());
+		Character->AddMovementInput(FVector::ForwardVector,Character->GetOrientX());
+	}
 }
 
 
