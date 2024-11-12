@@ -11,28 +11,32 @@ ESmashCharacterStateID USmashCharacterStateRun::GetStateID()
 void USmashCharacterStateRun::StateEnter(ESmashCharacterStateID PreviousStateID)
 {
 	Super::StateEnter(PreviousStateID);
-	if(PreviousStateID == ESmashCharacterStateID::Idle)
-	{
-		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
-		return;
-	}
 	Character->PlayAnimMontage(Anim);
 	MoveSpeedMax = RunMoveSpeedMax;
-	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,TEXT("Enter StateWalk"));
+	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,TEXT("Enter StateRun"));
 }
 
 void USmashCharacterStateRun::StateExit(ESmashCharacterStateID PreviousStateID)
 {
 	Super::StateExit(PreviousStateID);
 	Character->StopAnimMontage(Anim);
-	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,TEXT("Exit StateWalk"));
+	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,TEXT("Exit StateRun"));
 }
 
 void USmashCharacterStateRun::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
-	Character->AddMovementInput(Character->GetActorForwardVector() * Character->GetOrientX(),  10,false);
-	
-	GEngine->AddOnScreenDebugMessage(-1,0.1f,FColor::Green, TEXT("Tick StateWalk"));
+	if(FMath::Abs(Character->GetInputMoveX()) < Character->InputMoveXThreshold)
+	{
+		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
+	}
+	else
+	{
+		Character->SetOrientX(Character->GetInputMoveX());
+		Character->AddMovementInput(FVector::ForwardVector,  10 * Character->GetOrientX(),false);
+	}
+	GEngine->AddOnScreenDebugMessage(-1,0.1f,FColor::Green, TEXT("Tick StateRun"));
 }
+
+
 

@@ -7,6 +7,7 @@
 #include "SmashUE/SmashCharacterStateMachine.h"
 #include "EnhancedInputSubsystems.h"
 #include "SmashUE/SmashCharacterInputData.h"
+#include "SmashUE/SmashCharacterSettings.h"
 
 // Sets default values
 ASmashCharacter::ASmashCharacter()
@@ -22,6 +23,7 @@ void ASmashCharacter::BeginPlay()
 	Super::BeginPlay();
 	CreateStateMachine();
 	InitStateMachine();
+	GetInputMoveXThresholdFromSettings();
 }
 
 // Called every frame
@@ -92,6 +94,12 @@ void ASmashCharacter::SetupMappingContextIntoController() const
 	InputSystem->AddMappingContext(InputMappingContext, 0);
 }
 
+void ASmashCharacter::GetInputMoveXThresholdFromSettings()
+{
+	const USmashCharacterSettings* CharacterSettings = GetDefault<USmashCharacterSettings>();
+	InputMoveXThreshold = CharacterSettings->InputMoveXThreshold;
+}
+
 float ASmashCharacter::GetInputMoveX() const
 {
 	return InputMoveX;
@@ -100,6 +108,12 @@ float ASmashCharacter::GetInputMoveX() const
 void ASmashCharacter::OnInputMoveX(const FInputActionValue& InputActionValue)
 {
 	InputMoveX = InputActionValue.Get<float>();
+}
+
+void ASmashCharacter::OnInputMoveXFast(const FInputActionValue& InputActionValue)
+{
+	InputMoveX = InputActionValue.Get<float>();
+	InputMoveXFastEvent.Broadcast(InputMoveX);
 }
 
 void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* EnhancedInputComponent)
@@ -127,6 +141,16 @@ void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* Enha
 			ETriggerEvent::Triggered,
 			this,
 			&ASmashCharacter::OnInputMoveX
+			);
+	}
+
+	if(InputData->InputActionMoveXFast)
+	{
+		EnhancedInputComponent->BindAction(
+			InputData->InputActionMoveXFast,
+			ETriggerEvent::Triggered,
+			this,
+			&ASmashCharacter::OnInputMoveXFast
 			);
 	}
 }
