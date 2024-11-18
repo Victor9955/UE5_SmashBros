@@ -179,4 +179,14 @@ void ASmashCharacter::BindJumpAction(UEnhancedInputComponent* EnhancedInputCompo
 	}
 }
 
+FVector ASmashCharacter::GetFollowPosition()
+{
+	return GetActorLocation();
+}
+
+bool ASmashCharacter::IsFollowable()
+{
+	return true;
+}
+
 

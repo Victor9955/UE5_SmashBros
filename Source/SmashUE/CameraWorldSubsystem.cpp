@@ -3,6 +3,7 @@
 
 #include "CameraWorldSubsystem.h"
 
+#include "CameraFollowTarget.h"
 #include "Kismet/GameplayStatics.h"
 
 void UCameraWorldSubsystem::PostInitialize()
@@ -32,12 +33,16 @@ TStatId UCameraWorldSubsystem::GetStatId() const
 	return TStatId();
 }
 
-void UCameraWorldSubsystem::AddFollowTarget(AActor* FollowTarget)
+void UCameraWorldSubsystem::AddFollowTarget(UObject* FollowTarget)
 {
-	FollowTargets.Add(FollowTarget);
+	ICameraFollowTarget* Cash = Cast<ICameraFollowTarget>(FollowTarget);
+	if(Cash != nullptr && Cash->IsFollowable())
+	{
+		FollowTargets.Add(FollowTarget);
+	}
 }
 
-void UCameraWorldSubsystem::RemoveFollowTarget(AActor* FollowTarget)
+void UCameraWorldSubsystem::RemoveFollowTarget(UObject* FollowTarget)
 {
 	FollowTargets.Remove(FollowTarget);
 }
@@ -54,19 +59,19 @@ void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
 
 FVector UCameraWorldSubsystem::CalculateAveragePositionBetweenTargets()
 {
-	FVector result;
-	float x = FollowTargets[0]->GetActorLocation().X;
-	float z = FollowTargets[0]->GetActorLocation().Z;
+	FVector result = FVector::ZeroVector;
 
-	for(int i = 1; i < FollowTargets.Num(); i++)
+	for(int i = 0; i < FollowTargets.Num(); i++)
 	{
-		x += FollowTargets[i]->GetActorLocation().X;
-		z += FollowTargets[i]->GetActorLocation().Z;
+		ICameraFollowTarget* Cash = Cast<ICameraFollowTarget>(FollowTargets[i]);
+		if(Cash != nullptr && Cash->IsFollowable())
+		{
+			result += Cash->GetFollowPosition();
+		}
 	}
-
-	x /= FollowTargets.Num();
-	z /= FollowTargets.Num();
-	return FVector(x,0, z);
+	
+	result /= FollowTargets.Num();
+	return FVector(result.X,0, result.Z);
 }
 
 UCameraComponent* UCameraWorldSubsystem::FindCameraByTag(const FName& Tag) const
