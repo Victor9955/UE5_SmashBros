@@ -37,7 +37,4 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UAnimMontage> Anim;
-
-	UPROPERTY(EditAnywhere)
-	float MoveSpeedMax;
 };

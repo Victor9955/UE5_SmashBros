@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "SmashUE/SmashCharacterStateMachine.h"
 #include "EnhancedInputSubsystems.h"
+#include "SmashUE/CameraWorldSubsystem.h"
 #include "SmashUE/SmashCharacterInputData.h"
 #include "SmashUE/SmashCharacterSettings.h"
 
@@ -24,6 +25,7 @@ void ASmashCharacter::BeginPlay()
 	CreateStateMachine();
 	InitStateMachine();
 	GetInputMoveXThresholdFromSettings();
+	GetWorld()->GetSubsystem<UCameraWorldSubsystem>()->AddFollowTarget(this);
 }
 
 // Called every frame
@@ -44,6 +46,7 @@ void ASmashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	if (EnhancedInputComponent == nullptr) return;
 
 	BindInputMoveXAxisAndActions(EnhancedInputComponent);
+	BindJumpAction(EnhancedInputComponent);
 }
 
 float ASmashCharacter::GetOrientX() const
@@ -116,6 +119,14 @@ void ASmashCharacter::OnInputMoveXFast(const FInputActionValue& InputActionValue
 	InputMoveXFastEvent.Broadcast(InputMoveX);
 }
 
+void ASmashCharacter::OnInputJump(const FInputActionValue& InputActionValue)
+{
+	if(CanJump())
+	{
+		StateMachine->ChangeState(ESmashCharacterStateID::Jump);
+	}
+}
+
 void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* EnhancedInputComponent)
 {
 	if(InputData == nullptr) return;
@@ -151,6 +162,19 @@ void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* Enha
 			ETriggerEvent::Triggered,
 			this,
 			&ASmashCharacter::OnInputMoveXFast
+			);
+	}
+}
+
+void ASmashCharacter::BindJumpAction(UEnhancedInputComponent* EnhancedInputComponent)
+{
+	if(InputData->InputActionJump)
+	{
+		EnhancedInputComponent->BindAction(
+			InputData->InputActionJump,
+			ETriggerEvent::Triggered,
+			this,
+			&ASmashCharacter::OnInputJump
 			);
 	}
 }

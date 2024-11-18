@@ -20,4 +20,7 @@ class SMASHUE_API USmashCharacterInputData : public UDataAsset
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UInputAction> InputActionMoveXFast;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UInputAction> InputActionJump;
 };

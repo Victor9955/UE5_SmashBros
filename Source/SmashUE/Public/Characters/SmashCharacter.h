@@ -99,6 +99,8 @@ public:
 	private:
 	void OnInputMoveX(const FInputActionValue& InputActionValue);
 	void OnInputMoveXFast(const FInputActionValue& InputActionValue);
+	void OnInputJump(const FInputActionValue& InputActionValue);
 	void BindInputMoveXAxisAndActions(UEnhancedInputComponent* EnhancedInputComponent);
+	void BindJumpAction(UEnhancedInputComponent* EnhancedInputComponent);
 #pragma endregion;
 };

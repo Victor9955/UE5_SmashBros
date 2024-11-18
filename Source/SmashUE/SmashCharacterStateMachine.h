@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SmashCharacterStateID.h"
 #include "UObject/Object.h"
 #include "SmashCharacterStateMachine.generated.h"
 
