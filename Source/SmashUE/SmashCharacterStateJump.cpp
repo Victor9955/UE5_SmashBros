@@ -19,8 +19,8 @@ void USmashCharacterStateJump::StateEnter(ESmashCharacterStateID PreviousStateID
 	
 	Character->GetCharacterMovement()->GravityScale = ((-2.f * JumpMaxHeight) / FMathf::Pow((JumpDuration / 2.f), 2)) / -981.f;
 	Character->GetCharacterMovement()->JumpZVelocity = ((2.f * JumpMaxHeight) / (JumpDuration / 2.f));
+	Character->GetCharacterMovement()->MaxWalkSpeed *= JumpAirControl;
 	Character->Jump();
-	Character->GetCharacterMovement()->MaxWalkSpeed *= JumpAirControl; 
 	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,TEXT("Enter StateJump"));
 }
 
