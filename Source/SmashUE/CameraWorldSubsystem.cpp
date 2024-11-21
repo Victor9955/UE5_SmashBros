@@ -23,6 +23,8 @@ void UCameraWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 	{
 		InitCamerabounds(CameraBoundsActor);
 	}
+
+	InitCameraZoomParameters();
 }
 
 void UCameraWorldSubsystem::Tick(float DeltaTime)
@@ -32,6 +34,7 @@ void UCameraWorldSubsystem::Tick(float DeltaTime)
 	{
 		TickUpdateCameraPosition(DeltaTime);
 	}
+	TickUpdateCameraZoom(DeltaTime);
 }
 
 TStatId UCameraWorldSubsystem::GetStatId() const
@@ -53,6 +56,28 @@ void UCameraWorldSubsystem::RemoveFollowTarget(UObject* FollowTarget)
 	FollowTargets.Remove(FollowTarget);
 }
 
+float UCameraWorldSubsystem::CalculateGreatestDistanceBetweenTargets()
+{
+	float MaxDistance = 0.f;
+	for(UObject* TargetX : FollowTargets)
+	{
+		for(UObject* TargetY : FollowTargets)
+		{
+			AActor* CashX = Cast<AActor>(TargetX);
+			AActor* CashY = Cast<AActor>(TargetY);
+			if(CashX != nullptr && CashY != nullptr)
+			{
+				float CashDistance =  FVector::Dist(CashX->GetActorLocation(),CashY->GetActorLocation());
+				if(MaxDistance <= CashDistance)
+				{
+					MaxDistance = CashDistance;
+				}
+			}
+		}
+	}
+	return MaxDistance;
+}
+
 void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
 {
 	FVector NewLocation = CalculateAveragePositionBetweenTargets();
@@ -61,6 +86,16 @@ void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
 	{
 		CameraMain->SetWorldLocation(FVector(NewLocation.X,CameraMain->GetAttachmentRootActor()->GetActorLocation().Y,NewLocation.Z));
 	}
+}
+
+void UCameraWorldSubsystem::TickUpdateCameraZoom(float DeltaTime)
+{
+	float GreatestDistance = CalculateGreatestDistanceBetweenTargets();
+
+	GreatestDistance = FMath::Clamp(GreatestDistance,CameraZoomDistanceBetweenTargetsMin,CameraZoomDistanceBetweenTargetsMax);
+	float Percent = (GreatestDistance - CameraZoomDistanceBetweenTargetsMin) / (CameraZoomDistanceBetweenTargetsMax- CameraZoomDistanceBetweenTargetsMin);
+
+	CameraMain->SetWorldLocation(FVector(CameraMain->GetAttachmentRootActor()->GetActorLocation().X, FMath::Lerp(CameraZoomYMin,CameraZoomYMax, Percent),CameraMain->GetAttachmentRootActor()->GetActorLocation().Z));
 }
 
 FVector UCameraWorldSubsystem::CalculateAveragePositionBetweenTargets()
@@ -165,6 +200,14 @@ FVector UCameraWorldSubsystem::CalculateWorldPositionFromViewportPosition(const 
 	WorldPosition += CameraWorldProjectionDir * YDistanceToCenter;
 	
 	return WorldPosition;
+}
+
+void UCameraWorldSubsystem::InitCameraZoomParameters()
+{
+	UCameraComponent* CameraMax = FindCameraByTag(FName(TEXT("CameraDistanceMax")));
+	UCameraComponent* CameraMin = FindCameraByTag(FName(TEXT("CameraDistanceMin")));
+	if(CameraMax != nullptr) CameraZoomYMax = CameraMax->GetAttachmentRootActor()->GetActorLocation().Y;
+	if(CameraMin != nullptr) CameraZoomYMin = CameraMin->GetAttachmentRootActor()->GetActorLocation().Y;
 }
 
 UCameraComponent* UCameraWorldSubsystem::FindCameraByTag(const FName& Tag) const
