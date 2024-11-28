@@ -28,5 +28,12 @@ void USmashCharacterStateFall::StateTick(float DeltaTime)
 	{
 		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
 	}
-	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,TEXT("Tick StateFall"));
+
+	if(FMath::Abs(Character->GetInputMoveX()) >= Character->InputMoveXThreshold)
+	{
+		Character->SetOrientX(Character->GetInputMoveX());
+		Character->AddMovementInput(FVector::ForwardVector,Character->GetOrientX() * 1000.f,false);
+		GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,TEXT("Tick StateFall"));
+
+	}
 }

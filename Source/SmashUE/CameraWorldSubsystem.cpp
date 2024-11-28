@@ -4,6 +4,7 @@
 #include "CameraWorldSubsystem.h"
 
 #include "CameraFollowTarget.h"
+#include "CameraSettings.h"
 #include "Kismet/GameplayStatics.h"
 
 void UCameraWorldSubsystem::PostInitialize()
@@ -16,7 +17,8 @@ void UCameraWorldSubsystem::PostInitialize()
 void UCameraWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
-	CameraMain = FindCameraByTag(FName(TEXT("CameraMain")));
+	CameraSettings = GetDefault<UCameraSettings>();
+	CameraMain = FindCameraByTag(CameraSettings->CameraMainTag);
 
 	AActor* CameraBoundsActor = FindCameraBoundsActor();
 	if (CameraBoundsActor != nullptr)
@@ -84,7 +86,12 @@ void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
 	ClampPositionIntoCameraBounds(NewLocation);
 	if(CameraMain != nullptr)
 	{
-		CameraMain->SetWorldLocation(FVector(NewLocation.X,CameraMain->GetAttachmentRootActor()->GetActorLocation().Y,NewLocation.Z));
+		FVector Cash = CameraMain->GetAttachmentRootActor()->GetActorLocation();
+		float DampX = FMath::Lerp(Cash.X,NewLocation.X, 1.f);
+		float DampZ = FMath::Lerp(Cash.Z,NewLocation.Z, 1.f);
+		//GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,FString::Printf(TEXT("Camera : %f"), DampX));
+
+		CameraMain->SetWorldLocation(FVector(DampX,Cash.Y,DampZ));
 	}
 }
 
@@ -95,7 +102,11 @@ void UCameraWorldSubsystem::TickUpdateCameraZoom(float DeltaTime)
 	GreatestDistance = FMath::Clamp(GreatestDistance,CameraZoomDistanceBetweenTargetsMin,CameraZoomDistanceBetweenTargetsMax);
 	float Percent = (GreatestDistance - CameraZoomDistanceBetweenTargetsMin) / (CameraZoomDistanceBetweenTargetsMax- CameraZoomDistanceBetweenTargetsMin);
 
-	CameraMain->SetWorldLocation(FVector(CameraMain->GetAttachmentRootActor()->GetActorLocation().X, FMath::Lerp(CameraZoomYMin,CameraZoomYMax, Percent),CameraMain->GetAttachmentRootActor()->GetActorLocation().Z));
+	FVector Cash = CameraMain->GetAttachmentRootActor()->GetActorLocation();
+	float DampY = FMath::Lerp(Cash.Y,FMath::Lerp(CameraZoomYMin,CameraZoomYMax, Percent), DeltaTime);
+	//GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,FString::Printf(TEXT("Camera : %f"), FMath::Lerp(CameraZoomYMin,CameraZoomYMax, Percent)));
+
+	CameraMain->SetWorldLocation(FVector(Cash.X,DampY,Cash.Z)); ;
 }
 
 FVector UCameraWorldSubsystem::CalculateAveragePositionBetweenTargets()
@@ -118,7 +129,7 @@ FVector UCameraWorldSubsystem::CalculateAveragePositionBetweenTargets()
 AActor* UCameraWorldSubsystem::FindCameraBoundsActor()
 {
 	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("CameraBounds")), FoundActors);
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), CameraSettings->CameraBoundsTag, FoundActors);
 	if(FoundActors.Num() > 0)
 	{
 		return FoundActors[0];
@@ -146,11 +157,6 @@ void UCameraWorldSubsystem::ClampPositionIntoCameraBounds(FVector& Position)
 
 	FVector WorldBoundsMin = CalculateWorldPositionFromViewportPosition(ViewPortBoundsMin);
 	FVector WorldBoundsMax = CalculateWorldPositionFromViewportPosition(ViewPortBoundsMax);
-
-	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Blue,FString::Printf(TEXT("Camera Bound X %f"),CameraBoundsMin.X));
-	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Blue,FString::Printf(TEXT("Camera Bound Y %f"),CameraBoundsMin.Y));
-	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Blue,FString::Printf(TEXT("World Bound X %f"),WorldBoundsMin.X));
-	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Blue,FString::Printf(TEXT("World Bound Y %f"),WorldBoundsMin.Z));
 	
 	float WorldBoundsSizeX = WorldBoundsMax.X - WorldBoundsMin.X;
 	float WorldBoundsSizeY = WorldBoundsMax.Z - WorldBoundsMin.Z;
@@ -204,10 +210,12 @@ FVector UCameraWorldSubsystem::CalculateWorldPositionFromViewportPosition(const 
 
 void UCameraWorldSubsystem::InitCameraZoomParameters()
 {
-	UCameraComponent* CameraMax = FindCameraByTag(FName(TEXT("CameraDistanceMax")));
-	UCameraComponent* CameraMin = FindCameraByTag(FName(TEXT("CameraDistanceMin")));
+	UCameraComponent* CameraMax = FindCameraByTag(CameraSettings->CameraDistanceMaxTag);
+	UCameraComponent* CameraMin = FindCameraByTag(CameraSettings->CameraDistanceMinTag);
 	if(CameraMax != nullptr) CameraZoomYMax = CameraMax->GetAttachmentRootActor()->GetActorLocation().Y;
 	if(CameraMin != nullptr) CameraZoomYMin = CameraMin->GetAttachmentRootActor()->GetActorLocation().Y;
+	CameraZoomDistanceBetweenTargetsMin = CameraSettings->DistanceBetweenTargetMin;
+	CameraZoomDistanceBetweenTargetsMax = CameraSettings->DistanceBetweenTargetMax;
 }
 
 UCameraComponent* UCameraWorldSubsystem::FindCameraByTag(const FName& Tag) const

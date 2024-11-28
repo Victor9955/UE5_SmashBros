@@ -2,6 +2,8 @@
 
 
 #include "Match/MatchGameMode.h"
+
+#include "LocalMultiplayerSubsystem.h"
 #include "Arena/ArenaPlayerStart.h"
 #include "Characters/SmashCharacter.h"
 #include "Kismet/GameplayStatics.h"
@@ -11,6 +13,7 @@
 void AMatchGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	CreateAndInitPlayers();
 
 	TArray<AArenaPlayerStart*> PlayerStartPoints;
 	FindPlayerStartActorsInArena(PlayerStartPoints);
@@ -24,6 +27,17 @@ void AMatchGameMode::BeginPlay()
 		
 		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, SmashCharacterClass->GetFName().ToString());
 	}
+}
+
+void AMatchGameMode::CreateAndInitPlayers() const
+{
+	UGameInstance* GameInstance = GetGameInstance();
+	if(GameInstance == nullptr) return;
+
+	ULocalMultiplayerSubsystem* LocalMultiplayerSubsystem = GameInstance->GetSubsystem<ULocalMultiplayerSubsystem>();
+	if(LocalMultiplayerSubsystem == nullptr) return;
+
+	LocalMultiplayerSubsystem->CreateInitPlayers(InGame);
 }
 
 USmashCharacterInputData* AMatchGameMode::LoadInputDataFromConfig()
@@ -95,7 +109,9 @@ void AMatchGameMode::SpawnCharacters(const TArray<AArenaPlayerStart*>& SpawnPoin
 			SpawnPoint->GetTransform()
 			);
 
+
 		if(NewCharacter == nullptr) continue;
+		
 		NewCharacter->InputData = InputData;
 		NewCharacter->InputMappingContext = InputMappingContext;
 		NewCharacter->AutoPossessPlayer = SpawnPoint->AutoReceiveInput;

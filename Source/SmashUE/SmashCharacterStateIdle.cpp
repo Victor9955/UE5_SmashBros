@@ -17,21 +17,21 @@ void USmashCharacterStateIdle::StateEnter(ESmashCharacterStateID PreviousStateID
 {
 	Super::StateEnter(PreviousStateID);
 	Character->InputMoveXFastEvent.AddDynamic(this, &USmashCharacterStateIdle::OnInputMoveXFast);
-	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,TEXT("Enter StateIdle"));
+	//GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,TEXT("Enter StateIdle"));
 }
 
 void USmashCharacterStateIdle::StateExit(ESmashCharacterStateID NextStateID)
 {
 	Super::StateExit(NextStateID);
 	Character->InputMoveXFastEvent.RemoveDynamic(this, &USmashCharacterStateIdle::OnInputMoveXFast);
-	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,TEXT("Exit StateIdle"));
+	//GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,TEXT("Exit StateIdle"));
 }
 
 void USmashCharacterStateIdle::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
 	
-	GEngine->AddOnScreenDebugMessage(-1,0.1f,FColor::Green,TEXT("Tick StateIdle"));
+	//GEngine->AddOnScreenDebugMessage(-1,0.1f,FColor::Green,TEXT("Tick StateIdle"));
 
 	if(	FMath::Abs(Character->GetInputMoveX()) > Character->InputMoveXThreshold)
 	{

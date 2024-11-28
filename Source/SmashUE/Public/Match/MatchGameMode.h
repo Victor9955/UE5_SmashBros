@@ -24,6 +24,8 @@ class SMASHUE_API AMatchGameMode : public AGameModeBase
 	public:
 		virtual void BeginPlay() override;
 	private:
+
+		void CreateAndInitPlayers() const;
 		USmashCharacterInputData* LoadInputDataFromConfig();
 
 		UInputMappingContext* LoadInputMappingContextFromConfig();

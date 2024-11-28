@@ -40,7 +40,7 @@ void ASmashCharacter::Tick(float DeltaTime)
 void ASmashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	SetupMappingContextIntoController();
+	//SetupMappingContextIntoController();
 
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (EnhancedInputComponent == nullptr) return;

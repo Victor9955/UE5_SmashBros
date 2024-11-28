@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CameraSettings.h"
 #include "Camera/CameraComponent.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "CameraWorldSubsystem.generated.h"
@@ -76,5 +77,9 @@ protected:
 
 	UFUNCTION()
 	void InitCameraZoomParameters();
+#pragma endregion
+#pragma region Settings
+	UPROPERTY()
+	const UCameraSettings* CameraSettings;
 #pragma endregion
 };
