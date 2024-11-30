@@ -87,8 +87,8 @@ void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
 	if(CameraMain != nullptr)
 	{
 		FVector Cash = CameraMain->GetAttachmentRootActor()->GetActorLocation();
-		float DampX = FMath::Lerp(Cash.X,NewLocation.X, 1.f);
-		float DampZ = FMath::Lerp(Cash.Z,NewLocation.Z, 1.f);
+		float DampX = FMath::Lerp(Cash.X,NewLocation.X, DeltaTime * CameraSettings->PositionDampingFactor);
+		float DampZ = FMath::Lerp(Cash.Z,NewLocation.Z, DeltaTime * CameraSettings->PositionDampingFactor);
 		//GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,FString::Printf(TEXT("Camera : %f"), DampX));
 
 		CameraMain->SetWorldLocation(FVector(DampX,Cash.Y,DampZ));
@@ -97,13 +97,14 @@ void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
 
 void UCameraWorldSubsystem::TickUpdateCameraZoom(float DeltaTime)
 {
+	const UCameraSettings* Settings = GetDefault<UCameraSettings>();
 	float GreatestDistance = CalculateGreatestDistanceBetweenTargets();
 
 	GreatestDistance = FMath::Clamp(GreatestDistance,CameraZoomDistanceBetweenTargetsMin,CameraZoomDistanceBetweenTargetsMax);
 	float Percent = (GreatestDistance - CameraZoomDistanceBetweenTargetsMin) / (CameraZoomDistanceBetweenTargetsMax- CameraZoomDistanceBetweenTargetsMin);
 
 	FVector Cash = CameraMain->GetAttachmentRootActor()->GetActorLocation();
-	float DampY = FMath::Lerp(Cash.Y,FMath::Lerp(CameraZoomYMin,CameraZoomYMax, Percent), DeltaTime);
+	float DampY = FMath::Lerp(Cash.Y,FMath::Lerp(CameraZoomYMin,CameraZoomYMax, Percent), DeltaTime * CameraSettings->SizeDampingFactor);
 	//GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Cyan,FString::Printf(TEXT("Camera : %f"), FMath::Lerp(CameraZoomYMin,CameraZoomYMax, Percent)));
 
 	CameraMain->SetWorldLocation(FVector(Cash.X,DampY,Cash.Z)); ;
